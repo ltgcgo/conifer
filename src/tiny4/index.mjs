@@ -33,12 +33,12 @@ while (filePos < fileSize) {
 	readActualWindow = readBufferWindow.subarray(0, readActualSize);
 	//console.debug(filePos, readActualSize, fileSize);
 	// The conversion magic happens here.
-	let showBuf = correctionHeader.slice();
+	let showBuf = correctionHeader;
 	for (let byte of readActualWindow) {
 		showBuf += getByteColour(byte);
 	};
 	// The final help message.
-	showBuf += `${" ".repeat((readMaxSize - readActualSize) << 1)}\x1b[0mW:${`${columns}`.padEnd(3, " ")} H:${`${rows}`.padEnd(2, " ")} E0 ${`${readChunkIndex}`.padStart(6, "0")}/${`${Math.ceil(fileSize / readActualSize)}`.padStart(6, "0")} L:${readActualSize}`;
+	showBuf += `${" ".repeat((readMaxSize - readActualSize) << 1)}\x1b[0mW:${`${columns}`.padEnd(3, " ")} H:${`${rows}`.padEnd(2, " ")} E0 ${`${readChunkIndex}`.padStart(6, "0")}/${`${Math.ceil(fileSize / readMaxSize)}`.padStart(6, "0")} L:${readActualSize}`;
 	Deno.stdout.write(wipeConsoleBuf);
 	Deno.stdout.write(u8Enc.encode(showBuf));
 	await Deno.stdin.read(dummyBuf);
