@@ -1,0 +1,13 @@
+*.swp
+.zcompdump
+.zsh_history
+build
+*.map
+.docker_name
+dist/*.js
+dist/*.css
+dist/*.ts
+dist/*.mts
+
+!dist/*.mjs.map
+!dist/*.d.mts
