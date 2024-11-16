@@ -61,7 +61,7 @@ self.stopTask = () => {
 	clearInterval(downloadThread);
 	self.frameIndex = self.frameTotal + 1;
 	downloadLock = false;
-	taskCounter = false;
+	taskCounter = 0;
 };
 self.startTask = () => {
 	if (self.frameIndex > self.frameTotal || !self.frameIndex) {
@@ -74,5 +74,60 @@ self.startTask = () => {
 		taskCounter = false;
 		downloadThread = setInterval(downloadTask, self.passInt >= 1000 ? self.passInt : 750);
 		downloadLock = true;
+	};
+};
+
+let retrievalLock = false;
+let retrievalCounter = 0, retrievalMax = 12;
+let retrievalThread;
+const retrievalTask = async () => {
+	if (self.frameIndex <= self.frameTotal) {
+		if (self.frameTargets?.indexOf(self.frameIndex) < 0 || retrievalCounter > retrievalMax) {
+			retrievalCounter = 0;
+			console.debug(`Moved on from ${frameIndex}/${frameTotal}.`);
+			document.querySelector("canvas").parentElement.dispatchEvent(new KeyboardEvent("keydown", {keyCode: 13, charCode: 0, key: "Enter", code: "Enter"}));
+			self.frameIndex ++;
+		} else {
+			switch (retrievalCounter) {
+				case 0: {
+					console.debug(`Target found at ${frameIndex}/${frameTotal}. Waiting to receive the whole frame...`);
+					break;
+				};
+				case retrievalMax: {
+					// Capture screen
+					downloadBlob(`${self?.filePrefix ?? "extractedFrame"}_${`${self.frameIndex}`.padStart(6, "0")}.webp`, await document.querySelector("canvas").blob("image/webp", 1));
+					console.debug(`Requested a download at ${frameIndex}/${frameTotal}.`);
+					break;
+				};
+			};
+			retrievalCounter ++;
+		};
+	} else {
+		clearInterval(downloadThread);
+		retrievalLock = false;
+		frameIndex = 1;
+		retrievalCounter = 0;
+	};
+};
+self.stopRetrieval = () => {
+	clearInterval(retrievalThread);
+	self.frameIndex = self.frameTotal + 1;
+	retrievalLock = false;
+	retrievalCounter = 0;
+};
+self.startRetrieval = () => {
+	if (self.frameIndex > self.frameTotal || !self.frameIndex) {
+		self.frameIndex = 1;
+	};
+	if (self.frameTotal < 1) {
+		self.frameTotal = 1;
+	};
+	if (self.frameIndex <= self.frameTotal && self.frameTargets?.length && !retrievalLock) {
+		retrievalCounter = false;
+		retrievalThread = setInterval(retrievalTask, self.retrInt >= 100 ? self.retrInt : 200);
+		if (retrievalThread) {
+			document.querySelector("canvas").parentElement.dispatchEvent(new KeyboardEvent("keydown", {keyCode: 13, charCode: 0, key: "Enter", code: "Enter"}));
+		};
+		retrievalLock = true;
 	};
 };
