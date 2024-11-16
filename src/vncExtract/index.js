@@ -103,7 +103,7 @@ const retrievalTask = async () => {
 			retrievalCounter ++;
 		};
 	} else {
-		clearInterval(downloadThread);
+		clearInterval(retrievalThread);
 		retrievalLock = false;
 		frameIndex = 1;
 		retrievalCounter = 0;
